@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import unittest
+from pathlib import Path
 
 import app as webapp
 
@@ -42,6 +43,17 @@ class WebApiTests(unittest.TestCase):
         }, content_type="multipart/form-data")
         self.assertEqual(uploaded.status_code, 200)
         self.assertEqual(uploaded.json["stats"]["total_requests"], 1)
+        self.client.post("/api/sample")
+
+    def test_upload_ten_thousand_line_demo_file(self):
+        sample_path = Path(webapp.ROOT) / "data" / "sample_access.log"
+        with sample_path.open("rb") as stream:
+            uploaded = self.client.post("/api/upload", data={
+                "logfile": (stream, "sample_access.log")
+            }, content_type="multipart/form-data")
+        self.assertEqual(uploaded.status_code, 200)
+        self.assertEqual(uploaded.json["stats"]["total_requests"], 10_300)
+        self.assertEqual(uploaded.json["stats"]["malformed_lines"], 1)
         self.client.post("/api/sample")
 
 

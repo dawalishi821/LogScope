@@ -10,7 +10,7 @@ OUTPUT = ROOT / "data" / "sample_access.log"
 SEED = 20261124
 START = datetime(2026, 11, 21, tzinfo=timezone(timedelta(hours=8)))
 
-NORMAL_IPS = [f"192.0.2.{n}" for n in range(10, 61)]
+NORMAL_IPS = [f"192.0.2.{n}" for n in range(10, 210)]
 NORMAL_PATHS = [
     "/", "/index.html", "/products", "/products/widget", "/products/gadget",
     "/search?q=monitor", "/search?q=keyboard", "/about", "/contact",
@@ -43,7 +43,7 @@ def build_lines() -> list[str]:
         method = rng.choices(["GET", "POST", "HEAD", "OPTIONS", "PUT"], [0.79, 0.10, 0.07, 0.025, 0.015])[0]
         path = rng.choice(NORMAL_PATHS)
         status = rng.choices([200, 206, 301, 304, 400, 401, 403, 404, 429, 500, 502],
-                             [0.73, 0.03, 0.06, 0.07, 0.015, 0.015, 0.01, 0.045, 0.005, 0.01, 0.005])[0]
+                             [0.78, 0.03, 0.055, 0.075, 0.008, 0.004, 0.004, 0.035, 0.002, 0.004, 0.003])[0]
         if path == "/login" and method == "POST":
             status = rng.choices([200, 401], [0.82, 0.18])[0]
         size = rng.randint(180, 18_000) if status not in (204, 304) else 0
