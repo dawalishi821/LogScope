@@ -1,0 +1,82 @@
+{
+  "thresholds": {
+    "high_frequency_requests": 120,
+    "ip_error_min_requests": 10,
+    "ip_4xx_rate": 0.72,
+    "ip_5xx_min_requests": 10,
+    "ip_5xx_rate": 0.25,
+    "login_failure_count": 8
+  },
+  "request_patterns": [
+    {
+      "id": "sqli_union_select",
+      "name": "SQL 注入：UNION SELECT",
+      "pattern": "\\bunion\\s+(?:all\\s+)?select\\b",
+      "category": "SQL 注入",
+      "severity": "high",
+      "field": "path"
+    },
+    {
+      "id": "sqli_tautology",
+      "name": "SQL 注入：恒真条件",
+      "pattern": "(?:\\bor\\b|\\band\\b)\\s+['\\\"]?\\d+['\\\"]?\\s*=\\s*['\\\"]?\\d+",
+      "category": "SQL 注入",
+      "severity": "high",
+      "field": "path"
+    },
+    {
+      "id": "sqli_time_delay",
+      "name": "SQL 注入：时间盲注函数",
+      "pattern": "\\b(?:sleep|benchmark)\\s*\\(",
+      "category": "SQL 注入",
+      "severity": "high",
+      "field": "path"
+    },
+    {
+      "id": "sqli_metadata",
+      "name": "SQL 注入：数据库元数据探测",
+      "pattern": "information_schema",
+      "category": "SQL 注入",
+      "severity": "medium",
+      "field": "path"
+    },
+    {
+      "id": "path_traversal",
+      "name": "路径遍历：目录穿越特征",
+      "pattern": "(?:\\.\\./|\\.\\\\\\\\|%2e%2e(?:%2f|%5c)|%252e%252e)",
+      "category": "路径遍历",
+      "severity": "high",
+      "field": "path"
+    },
+    {
+      "id": "sensitive_file_probe",
+      "name": "敏感文件与管理入口探测",
+      "pattern": "(?:/\\.env(?:\\b|/)|/\\.git(?:/|$)|/phpmyadmin(?:/|$)|/wp-login\\.php|/server-status|/backup(?:\\.|/)|/config\\.php)",
+      "category": "目录扫描",
+      "severity": "medium",
+      "field": "path"
+    },
+    {
+      "id": "suspicious_method",
+      "name": "非常用 HTTP 方法探测",
+      "pattern": "^(?:TRACE|CONNECT)$",
+      "category": "方法探测",
+      "severity": "medium",
+      "field": "method"
+    }
+  ],
+  "user_agents": [
+    {"keyword": "sqlmap", "severity": "high", "name": "SQL 注入工具 sqlmap"},
+    {"keyword": "hydra", "severity": "high", "name": "口令爆破工具 Hydra"},
+    {"keyword": "dirsearch", "severity": "high", "name": "目录扫描工具 dirsearch"},
+    {"keyword": "nikto", "severity": "high", "name": "漏洞扫描工具 Nikto"},
+    {"keyword": "masscan", "severity": "high", "name": "端口扫描工具 Masscan"},
+    {"keyword": "acunetix", "severity": "high", "name": "漏洞扫描工具 Acunetix"},
+    {"keyword": "nessus", "severity": "high", "name": "漏洞扫描工具 Nessus"},
+    {"keyword": "nmap", "severity": "medium", "name": "扫描工具 Nmap"},
+    {"keyword": "python-requests", "severity": "low", "name": "脚本客户端 python-requests"},
+    {"keyword": "curl/", "severity": "low", "name": "命令行客户端 curl"},
+    {"keyword": "wget/", "severity": "low", "name": "命令行客户端 wget"}
+  ],
+  "empty_user_agent": {"enabled": true, "severity": "medium", "name": "空 User-Agent"}
+}
