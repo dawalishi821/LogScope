@@ -234,12 +234,9 @@ def analyze_records(records: list[dict], malformed: int = 0, total_lines: int | 
     # Keep one logical alert per rule event; individual matching requests remain inspectable.
     severity_counts = Counter(a["severity"] for a in anomalies)
     category_counts = Counter(a["category"] for a in anomalies)
-    anomalies.sort(key=lambda a: (
-        SEVERITY_ORDER.get(a["severity"], 9), a["timestamp"] == "-", a["timestamp"],
-        a["line_number"] if isinstance(a["line_number"], int) else 0,
-    ), reverse=False)
-    # Highest risk first, then recent timestamps within the same risk level.
-    anomalies.sort(key=lambda a: (SEVERITY_ORDER.get(a["severity"], 9), a["timestamp"]), reverse=False)
+    # Highest risk first, then newest timestamps within the same risk level.
+    anomalies.sort(key=lambda a: a["timestamp"], reverse=True)
+    anomalies.sort(key=lambda a: SEVERITY_ORDER.get(a["severity"], 9))
 
     times = [r["_datetime"] for r in records]
     error_total = sum(n for code, n in status_counts.items() if code.startswith(("4", "5")))
@@ -295,15 +292,23 @@ def analyze_lines(lines: Iterable[str], rules: dict | None = None,
 def export_anomalies_csv(anomalies: Iterable[dict]) -> str:
     """Serialize anomaly rows as UTF-8 with a BOM for spreadsheet compatibility."""
     import io
+
+    def safe_cell(value) -> str:
+        text = "" if value is None else str(value)
+        probe = text.lstrip(" \t\r")
+        if probe.startswith(("=", "+", "-", "@")):
+            return "'" + text
+        return text
+
     output = io.StringIO(newline="")
     writer = csv.writer(output)
     writer.writerow(["风险等级", "检测类别", "规则名称", "客户端 IP", "时间", "方法", "请求路径", "状态码", "User-Agent", "日志行号", "判断说明"])
     for item in anomalies:
-        writer.writerow([
+        writer.writerow([safe_cell(value) for value in [
             item.get("severity_label", SEVERITY_LABEL.get(item.get("severity"), "")),
             item.get("category", ""), item.get("rule_name", ""), item.get("ip", ""),
             item.get("timestamp", ""), item.get("method", ""), item.get("path", ""),
             item.get("status", ""), item.get("user_agent", ""), item.get("line_number", ""),
             item.get("reason", ""),
-        ])
+        ]])
     return "\ufeff" + output.getvalue()
