@@ -46,7 +46,7 @@ python app.py
 - 统计访问趋势、Top 10 IP、Top 10 URL、状态码分布、方法分布、错误比例和异常类别。
 - 检测可疑请求特征、工具 User-Agent、单 IP 高频访问、单 IP 4xx / 5xx 比例异常，以及登录失败后出现成功响应的情况。
 - 支持风险、类别和关键字筛选，异常结果分页查看并导出为带 UTF-8 BOM 的 CSV。
-- 上传内容仅在当前 Flask 进程内存中分析，不写入磁盘。当前版本面向本机课堂演示，进程内保存一份当前分析结果。
+- 项目不会持久保存上传日志文件；分析结果由当前 Flask 进程保留。当前版本面向本机课堂演示，进程内只保存一份当前分析结果。
 
 ## 检测规则
 
@@ -107,6 +107,17 @@ python -m unittest discover -s tests -v
 ```
 
 测试覆盖日志字段解析、格式错误容错、规则命中、爆破时序判断、10,000 行以上样例、页面和 API、文件上传、筛选及 CSV 导出。
+
+## 重新生成项目报告
+
+报告 Word 文件、Markdown 源稿和架构图已放在 `report/`。如需从 `scripts/build_report.py` 重新生成：
+
+```bash
+python -m pip install -r requirements-report.txt
+python scripts/build_report.py
+```
+
+如果系统字体目录未自动识别中文字体，可通过 `LOGSCOPE_CJK_FONT` 指向一份本机可用的中文 `.ttf`、`.ttc` 或 `.otf` 字体文件。
 
 ## 已知边界
 
